@@ -1,12 +1,13 @@
-# Đồ án sort - benchmark
 # Báo Cáo Đồ Án: Benchmark Sorting C++
 
-## 1. Thông tin cá nhân
+## 1. Thông tin nhóm và cá nhân
 * **Tên môn học:** Cấu trúc dữ liệu và giải thuật
 * **Thời gian học:** Học kỳ 2, Năm học 2025-2026
-* **Họ tên sinh viên:** Đỗ Quang Thắng
-* **MSSV:** [Điền MSSV của bạn vào đây]
 * **Lớp:** 25CTT6 - Khoa Công nghệ Thông tin (FIT-HCMUS)
+* **Danh sách thành viên:**
+  1. **Đỗ Quang Thắng** - MSSV: 25120436
+  2. **Nguyễn Chí Thành** - MSSV: 25120438
+  3. **Nguyễn Ngọc Vũ** - MSSV: 25120471
 
 ---
 
@@ -27,7 +28,7 @@
   * Kết hợp ngắt đệ quy sớm (early cut-off): Khi kích thước mảng con cần xử lý $\le 48$, thuật toán tự động chuyển sang Insertion Sort tự cài đặt.
 * **Lý do lựa chọn:** Giảm tối đa số lần phải so sánh lại các tiền tố (prefix) chung giữa các chuỗi, vượt trội so với việc dùng `std::sort` vốn tốn nhiều chi phí gọi hàm so sánh.
 
-### Bài C (Length-aware Lexicographic Sort)
+### Bài C (Length-aware Lexicographic String Sort)
 * **Thuật toán chính:** Bucket Sort (theo độ dài) kết hợp Randomized QuickSort.
 * **Chi tiết kỹ thuật & Tối ưu:**
   * Đọc chuỗi và băm trực tiếp vào mảng 2 chiều `buckets` dựa trên độ dài (từ 10 đến 100).
@@ -61,13 +62,19 @@ Bộ test case được thiết kế có chủ đích nhằm "bắt bài" các t
 
 ## 4. Thuật toán cài đặt tốt nhất (Lần 2)
 
-Sau khi thiết kế bộ test đối kháng, các thuật toán ở Lần 1 cần được tối ưu sâu hơn về mặt bộ nhớ đệm (Cache-conscious optimization) để tăng tốc độ thực thi.
+Sau khi thiết kế bộ test đối kháng, các thuật toán ở Lần 1 được tái cấu trúc triệt để nhằm tối ưu sâu hơn về mặt quản lý bộ nhớ liên tục (Cache-conscious optimization) và xử lý chuỗi trùng lặp, tiền tố chung dài.
 
 ### Các phương thức tối ưu tiếp tục:
-1. **Tinh gọn bộ nhớ đệm (Bài A & B):**
-   * Chuyển từ việc cấp phát động nhiều mảng nhỏ sang gom toàn bộ chuỗi vào một mảng 1D liên tục (Contiguous Memory Allocation). Thao tác hoán vị lúc này chỉ thực hiện trên các chỉ số (index), giúp tăng Locality of Reference và tận dụng tối đa L1/L2 Cache của CPU.
-2. **Nâng cấp Bài C (strlenlexi):**
-   * Chuyển từ QuickSort ngẫu nhiên sang **3-way Radix Quicksort** cho từng bucket độ dài. Thuật toán mới xử lý cực kỳ mượt mà Test 3 (chuỗi có tiền tố dài giống hệt nhau), tránh việc gọi hàm so sánh chuỗi lặp đi lặp lại.
-3. **Loop Unrolling thủ công:**
-   * Các vòng lặp tính tần số đếm được mở cuộn thủ công (xử lý nhiều phần tử mỗi vòng) nhằm giảm chi phí kiểm tra điều kiện nhảy (jump instruction overhead) ở cấp độ assembly.
 
+**1. Bài A (Integer Sort):**
+* **Thuật toán cốt lõi:** Radix Sort cơ số 256 (4 passes) kết hợp thao tác bit (`v[i] ^ 0x80000000`).
+* **Cải tiến:** Chuyển đổi sang sử dụng `std::vector` kết hợp cơ chế `swap()` mảng tối ưu bộ nhớ. Khâu nhập xuất áp dụng `ios_base::sync_with_stdio(0); cin.tie(0);` giúp giữ tốc độ ở mức tối đa mà mã nguồn vẫn ngắn gọn, tường minh, giảm thiểu rủi ro lỗi vùng nhớ khi chấm bài thực tế.
+
+**2. Bài B (Lexicographic Sort):**
+* **Thuật toán cốt lõi:** MSD Radix Sort đệ quy qua từng ký tự.
+* **Cải tiến Memory Pool:** Áp dụng kỹ thuật **Contiguous Memory Allocation (Cấp phát bộ nhớ liên tục)**. Toàn bộ các chuỗi đầu vào được đọc nối tiếp trực tiếp vào mảng một chiều `string_pool`. Mảng con trỏ `a` và mảng tạm `tmp` chỉ quản lý các địa chỉ trỏ vào vùng nhớ liên tục này. Giải pháp này triệt tiêu hoàn toàn hiện tượng phân mảnh bộ nhớ (memory fragmentation) và tận dụng tối đa L1/L2 Cache của CPU.
+
+**3. Bài C (Length-aware Lexicographic String Sort):**
+* **Thuật toán cốt lõi:** Bucket Sort 1D theo độ dài kết hợp **3-way String Quicksort**.
+* **Cải tiến 3-way Partitioning:** Đây là vũ khí chính để chống lại các test case có tiền tố chung dài. Hàm `str_quicksort` xét từng ký tự ở độ sâu `d` và chia mảng thành 3 phần rõ rệt: nhỏ hơn, bằng (tiền tố trùng nhau) và lớn hơn ký tự chốt (pivot). Đoạn mảng có tiền tố bằng nhau sẽ tiếp tục đệ quy xét ký tự tiếp theo (`d + 1`). Cơ chế này khắc chế hoàn toàn trường hợp mảng chứa nhiều chuỗi có tiền tố giống nhau.
+* **Cải tiến Bucket 1D:** Thay vì dùng mảng 2 chiều tốn tài nguyên, thuật toán dùng mảng đếm tần suất `len_cnt` và vị trí bắt đầu `start_idx` để ánh xạ trực tiếp và phân lô toàn bộ chuỗi vào mảng một chiều `sorted_a`, giúp tối ưu hóa không gian bộ nhớ.
