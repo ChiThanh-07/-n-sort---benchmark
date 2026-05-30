@@ -26,14 +26,14 @@
 * **Chi tiết kỹ thuật & Tối ưu:**
   * Thuật toán duyệt từ trái sang phải của chuỗi, đếm tần số các ký tự (28 bucket). 
   * Kết hợp ngắt đệ quy sớm (early cut-off): Khi kích thước mảng con cần xử lý $\le 48$, thuật toán tự động chuyển sang Insertion Sort tự cài đặt.
-* **Lý do lựa chọn:** Giảm tối đa số lần phải so sánh lại các tiền tố (prefix) chung giữa các chuỗi, vượt trội so với việc dùng `std::sort` vốn tốn nhiều chi phí gọi hàm so sánh.
+* **Lý do lựa chọn:** Giảm tối đa số lần phải so sánh lại các tiền tố (prefix) chung giữa các chuỗi.
 
 ### Bài C (Length-aware Lexicographic String Sort)
 * **Thuật toán chính:** Bucket Sort (theo độ dài) kết hợp Randomized QuickSort.
 * **Chi tiết kỹ thuật & Tối ưu:**
   * Đọc chuỗi và băm trực tiếp vào mảng 2 chiều `buckets` dựa trên độ dài (từ 10 đến 100).
   * Viết lại hàm `my_strcmp` và `customSort` chỉ áp dụng cho các chuỗi trong cùng một bucket.
-* **Lý do lựa chọn:** Bằng cách chia nhóm độ dài ngay từ lúc đọc (chi phí $\mathcal{O}(N)$), bài toán được thu nhỏ lại thành sắp xếp nội bộ từng nhóm, giúp giảm thiểu số lượt so sánh dư thừa.
+* **Lý do lựa chọn:** Bằng cách chia nhóm độ dài ngay từ lúc đọc (chi phí $\mathcal{O}(N)$ ), bài toán được thu nhỏ lại thành sắp xếp nội bộ từng nhóm, giúp giảm thiểu số lượt so sánh dư thừa.
 
 ---
 
