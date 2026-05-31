@@ -7,7 +7,7 @@
 * **Danh sách thành viên:**
   1. **Đỗ Quang Thắng** - MSSV: 25120436
   2. **Nguyễn Chí Thành** - MSSV: 25120438
-  3. **Nguyễn Ngọc Vũ** - MSSV: 25120471
+  3. **Nguyễn Ngọc Vũ** - MSSV: 25120474
 
 ---
 
